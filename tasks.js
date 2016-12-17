@@ -132,7 +132,7 @@ function displayTasks(items) {
         let id = item.id.toString().padLeft(Math.max(h.id.length, maxLengths.id));
         let name = item.name.padRight(maxLengths.name);
         let due = (item.due) ? item.due.toDateString().padRight(maxLengths.due) : "".padRight(maxLengths.due);
-        let tags = item.tags.join(", ");
+        let tags = item.tags.sort().join(", ");
         console.log(`${id}  ${name}  ${due}  ${tags}`);
     });
 }
@@ -212,8 +212,7 @@ try {
         }
 
         if (items.length > 0) {
-            items.sort((a, b) => a.id > b.id);
-            displayTasks(items.filter((item) => !item.completed));
+            displayTasks(items.filter((item) => !item.completed).sort((a, b) => a.id - b.id));
         } else {
             console.log("No tasks found.");
         }
