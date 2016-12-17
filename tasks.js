@@ -181,7 +181,7 @@ try {
         let items = Task.registry.items.filter((t) => (t.due && t.due.isBeforeDate(today) && !t.completed));
 
         if (items.length > 0) {
-            items.sort((a, b) => a.id > b.id);
+            items.sort((a, b) => a.id - b.id);
             console.log(items.map((t) => `[${t.id.toString(36)}] ${t.name}`).join(" "));
         }
 
@@ -212,7 +212,8 @@ try {
         }
 
         if (items.length > 0) {
-            displayTasks(items.filter((item) => !item.completed).sort((a, b) => a.id - b.id));
+            items.sort((a, b) => (a.due && b.due) ? b.due - a.due : (a.due) ? 1 : (b.due) ? -1 : 0);
+            displayTasks(items.filter((item) => !item.completed));
         } else {
             console.log("No tasks found.");
         }

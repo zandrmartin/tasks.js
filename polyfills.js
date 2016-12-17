@@ -41,7 +41,7 @@ if (!String.prototype.padLeft) {
 
 if (!Array.prototype.max) {
     Array.prototype.max = function () {
-        return Math.max.apply(null, this);
+        return Math.max(...this);
     };
 }
 
