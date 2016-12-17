@@ -17,24 +17,23 @@ require("./polyfills.js");
 const Task = require("./task.js");
 const scheduling = require("./scheduling.js");
 const console = require("console");
-const ACTIONS = ["add", "complete", "delete", "list", "status", "clean-cache"];
+const ACTIONS = ["add", "complete", "delete", "list", "status", "clean-cache", "postpone", "rename"];
 const USAGE = `Usage: node tasks.js <action> <options>
 
-  <action> is one of ${ACTIONS.map((a) => `"${a}"`).join(", ")}
-  <options> depend on action
+<action> is one of ${ACTIONS.map((a) => `"${a}"`).sort().join(", ")}
+<options> depend on action
 
-  Syntax: node tasks.js ...
-    add "name/description of task" [flags]
-    complete <id>
-    delete <id>
-    list [tagged|dated] "search term"
-    status
-    clean-cache
-
-  Flags:
-    -d, --due <date|day-of-week>
-    -r, --recurs <#> <day|week|month|year>
-    -t, --tags tag1 [tag2 tag3 ...]`;
+Options:
+  add "name of task" [<-d|--due> <date|day-of-week>]
+                     [<-r|--recurs> <#> <day|week|month|year>]
+                     [<-t|--tags> tag1 [tag2 tag3 ...]]
+  clean-cache
+  complete <id> [<id> <id> ...]
+  delete <id> [<id> <id> ...]
+  list [tagged|dated] ["search term"]
+  postpone <date> <id> [<id> <id> ...]
+  rename <id> <name>
+  status`;
 
 Task.registry.load();
 
@@ -62,6 +61,7 @@ function parseArgs() {
                 case "recurs":
                     options.recurs = args.shift() + " " + args.shift();
                     break;
+
                 case "t": // fallthrough
                 case "tags":
                     options.tags = args;
@@ -91,6 +91,22 @@ function parseArgs() {
                 options.list.type = "named";
                 options.list.search = arg;
             }
+        },
+        postpone: function () {
+            if (args.length < 2) {
+                throw { name: "ArgumentError", message: "Postpone requires date and id(s)." };
+            }
+
+            options.due = args.shift();
+            options.ids = args.map((id) => parseInt(id, 36));
+        },
+        rename: function () {
+            if (args.length < 2) {
+                throw { name: "ArgumentError", message: "Postpone requires date and id(s)." };
+            }
+
+            options.id = parseInt(args.shift(), 36);
+            options.name = args.shift();
         }
     };
     argParsers.delete = argParsers.complete;
@@ -110,7 +126,7 @@ function parseArgs() {
 
 function displayTasks(items) {
     const maxLengths = {
-        id:   items.map((item) => item.id.toString().length).max(),
+        id:   items.map((item) => item.id.toString(36).length).max(),
         name: items.map((item) => item.name.length).max(),
         due:  items.map((item) => (item.due) ? item.due.toDateString().length : 0).max(),
         tags: items.map((item) => item.tags.join(", ").length).max(),
@@ -129,7 +145,7 @@ function displayTasks(items) {
     console.log("".padRight(header.length, "-"));
 
     items.forEach(function (item) {
-        let id = item.id.toString().padLeft(Math.max(h.id.length, maxLengths.id));
+        let id = item.id.toString(36).padLeft(Math.max(h.id.length, maxLengths.id));
         let name = item.name.padRight(maxLengths.name);
         let due = (item.due) ? item.due.toDateString().padRight(maxLengths.due) : "".padRight(maxLengths.due);
         let tags = item.tags.sort().join(", ");
@@ -141,7 +157,7 @@ try {
     let options = parseArgs();
     switch (options.action) {
     case "add": {
-        let attrs = { name: options.name };
+        const attrs = { name: options.name };
         let task = Task.new(attrs);
 
         if (options.due) {
@@ -162,10 +178,10 @@ try {
         Task.registry.save();
         break;
     }
+
     case "delete": // fallthrough
-    case "complete": {
-        const tasks = Task.registry.items.filter((item) => options.ids.includes(item.id));
-        tasks.forEach(function (task) {
+    case "complete":
+        Task.registry.items.filter((item) => options.ids.includes(item.id)).forEach(function (task) {
             if (options.action === "complete") {
                 task.complete();
             } else {
@@ -175,9 +191,9 @@ try {
         });
         Task.registry.save();
         break;
-    }
+
     case "status": {
-        let today = new Date();
+        const today = new Date();
         let items = Task.registry.items.filter((t) => (t.due && t.due.isBeforeDate(today) && !t.completed));
 
         if (items.length > 0) {
@@ -187,6 +203,7 @@ try {
 
         break;
     }
+
     case "list": {
         let items;
         const search = (options.list.search) ? options.list.search.toLowerCase() : "";
@@ -220,15 +237,40 @@ try {
 
         break;
     }
-    case "clean-cache": {
-        const start = Task.registry.items.length;
+
+    case "clean-cache":
         Task.registry.items.forEach(function (item) {
             if (item.completed) {
                 Task.registry.remove(item.id);
+                console.log(`Removing completed item ${item.name}.`);
             }
         });
         Task.registry.save();
-        console.log(`Removed ${start - Task.registry.items.length} completed items.`);
+        break;
+
+    case "postpone":
+        Task.registry.items.forEach(function (item) {
+            if (options.ids.includes(item.id)) {
+                item.due = scheduling.parseDueDate(options.due);
+                console.log(`Postponed ${item.name} until ${item.due}.`);
+            }
+        });
+        Task.registry.save();
+        break;
+
+    case "rename": {
+        let task = Task.registry.getById(options.id);
+
+        if (!task) {
+            console.log(`Unable to find task with id ${options.id}.`);
+            break;
+        }
+
+        const origName = task.name;
+        task.name = options.name;
+        Task.registry.save();
+        console.log(`Renamed task "${origName}" to "${task.name}".`);
+
         break;
     }
     }

@@ -91,12 +91,21 @@ const Task = {
         load: function () {
             let data = JSON.parse(fs.readFileSync(DATA_FILE));
             if (data && data.length) {
-                data.forEach((t) => Task.new(t));
+                data.forEach((item) => Task.new(item));
             }
         },
         remove: function (id) {
-            let i = this.items.findIndex((t) => t.id === id);
+            let i = this.items.findIndex((item) => item.id === id);
             return this.items.splice(i, 1);
+        },
+        getById: function (id) {
+            const tasks = this.items.filter((item) => item.id === id);
+
+            if (tasks.length > 0) {
+                return tasks[0];
+            }
+
+            return null;
         }
     }
 };
