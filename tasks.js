@@ -262,7 +262,6 @@ function displayTasks(items) {
     };
 
     const header = `${h.id}  ${h.name}  ${h.due}  ${h.tags}`;
-    console.log(header.length);
 
     console.log(header);
     console.log("".padRight(header.length, "-"));
