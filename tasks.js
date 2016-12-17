@@ -130,7 +130,7 @@ Task.registry.load();
 function nextScheduled(sched) {
     const pieces = sched.split(" ");
     if (pieces[0].isNumeric() && ["day", "week", "month", "year"].includes(pieces[1])) {
-        DAYS;
+        DAYS; // to silence warnings; this is not done yet
     }
 }
 
