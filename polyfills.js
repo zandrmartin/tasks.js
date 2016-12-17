@@ -44,3 +44,19 @@ if (!Array.prototype.max) {
         return Math.max.apply(null, this);
     };
 }
+
+if (!Date.prototype.isBeforeDate) {
+    Date.prototype.isBeforeDate = function (d) {
+        d.setHours(23);
+        d.setMinutes(59);
+        d.setSeconds(59);
+        d.setMilliseconds(999);
+        return this < d;
+    };
+}
+
+if (!Date.prototype.isSameDayAs) {
+    Date.prototype.isSameDayAs = function (d) {
+        return this.toDateString() === d.toDateString();
+    };
+}

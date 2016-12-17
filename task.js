@@ -15,6 +15,7 @@
 "use strict";
 const path = require("path");
 const fs = require("fs");
+const scheduling = require("./scheduling.js");
 const DATA_FILE = (typeof process.env.XDG_DATA_HOME === "undefined")
                   ? path.join(process.env.HOME, ".tasks.json")
                   : path.join(process.env.XDG_DATA_HOME, "tasks.json");
@@ -35,7 +36,7 @@ const Task = {
         completed: false,
         complete: function () {
             if (this.recurs && this.schedule) {
-                // TODO: change due date here
+                this.due = scheduling.nextScheduled(this.schedule);
             } else {
                 this.completed = true;
             }
@@ -53,6 +54,10 @@ const Task = {
                 ret.due = this.due;
             }
 
+            if (this.schedule) {
+                ret.schedule = this.schedule;
+            }
+
             if (this.tags.length > 0) {
                 ret.tags = this.tags;
             }
@@ -64,8 +69,8 @@ const Task = {
         let t = Object.create(Task.objProto);
         t.id = 0;
 
+        // set id to first unused id
         while (Task.registry.items.filter((item) => item.id === t.id).length > 0) {
-            // set id to first unused id
             t.id++;
         }
 

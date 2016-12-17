@@ -15,9 +15,9 @@
 "use strict";
 require("./polyfills.js");
 const Task = require("./task.js");
+const scheduling = require("./scheduling.js");
 const console = require("console");
-const DAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-const ACTIONS = ["add", "complete", "delete", "list", "status"];
+const ACTIONS = ["add", "complete", "delete", "list", "status", "clean-cache"];
 const USAGE = `Usage: node tasks.js <action> <options>
 
   <action> is one of ${ACTIONS.map((a) => `"${a}"`).join(", ")}
@@ -29,6 +29,7 @@ const USAGE = `Usage: node tasks.js <action> <options>
     delete <id>
     list [tagged|dated] "search term"
     status
+    clean-cache
 
   Flags:
     -d, --due <date|day-of-week>
@@ -36,47 +37,6 @@ const USAGE = `Usage: node tasks.js <action> <options>
     -t, --tags tag1 [tag2 tag3 ...]`;
 
 Task.registry.load();
-
-function nextScheduled(sched) {
-    const pieces = sched.split(" ");
-    if (pieces[0].isNumeric() && ["day", "week", "month", "year"].includes(pieces[1])) {
-        DAYS; // to silence warnings; this is not done yet
-    }
-}
-
-function parseDueDate(_dt) {
-    const now = new Date();
-    const dt = _dt.toLowerCase();
-    let d = new Date(_dt);
-
-    if (d.toDateString() !== "Invalid Date") {
-        return d;
-    }
-
-    d = new Date();
-
-    if (dt === "today") {
-        d.setDate(now.getDate());
-    } else if (dt === "tomorrow") {
-        d.setDate(now.getDate() + 1);
-    } else if (DAYS.includes(dt)) {
-        const day = DAYS.findIndex((item) => item === dt);
-        if (day > now.getDay()) {
-            d.setDate(now.getDate() + (day - now.getDay()));
-        } else {
-            d.setDate(now.getDate() + (7 - now.getDay()) + day);
-        }
-    } else if (dt.isNumeric()) {
-        if (dt > now.getDate()) {
-            d.setUTCMonth(now.getUTCMonth() + 1);
-        }
-        d.setDate(dt);
-    } else {
-        throw { name: "DueDateError", message: `${_dt} is not a valid date.` };
-    }
-
-    return d;
-}
 
 function parseArgs() {
     let args = process.argv.slice(2);
@@ -100,8 +60,7 @@ function parseArgs() {
 
                 case "r": // fallthrough
                 case "recurs":
-                    options.recurs = args.shift();
-
+                    options.recurs = args.shift() + " " + args.shift();
                     break;
                 case "t": // fallthrough
                 case "tags":
@@ -186,10 +145,10 @@ try {
         let task = Task.new(attrs);
 
         if (options.due) {
-            task.due = parseDueDate(options.due);
+            task.due = scheduling.parseDueDate(options.due);
 
             if (options.recurs) {
-                nextScheduled(options.recurs); // just so we throw an error if it's wrong
+                scheduling.nextScheduled(options.recurs); // just so we throw an error if it's wrong
                 task.schedule = options.recurs;
                 task.recurs = true;
             }
@@ -219,13 +178,13 @@ try {
     }
     case "status": {
         let today = new Date();
-        today.setHours(23);
-        today.setMinutes(59);
-        today.setSeconds(59);
-        today.setMilliseconds(999);
-        let items = Task.registry.items.filter((t) => (t.due && t.due < today && !t.completed));
-        items.sort((a, b) => a.id > b.id);
-        console.log(items.map((t) => `[${t.id.toString(36)}] ${t.name}`).join(" "));
+        let items = Task.registry.items.filter((t) => (t.due && t.due.isBeforeDate(today) && !t.completed));
+
+        if (items.length > 0) {
+            items.sort((a, b) => a.id > b.id);
+            console.log(items.map((t) => `[${t.id.toString(36)}] ${t.name}`).join(" "));
+        }
+
         break;
     }
     case "list": {
@@ -235,7 +194,7 @@ try {
         switch (options.list.type) {
         case "dated": {
             let find = new Date(search);
-            items = Task.registry.items.filter((item) => (item.due && item.due.toDateString() === find.toDateString()));
+            items = Task.registry.items.filter((item) => (item.due && item.due.isSameDayAs(find)));
             break;
         }
 
@@ -252,8 +211,25 @@ try {
             break;
         }
 
-        items.sort((a, b) => a.id > b.id);
-        displayTasks(items.filter((item) => !item.completed));
+        if (items.length > 0) {
+            items.sort((a, b) => a.id > b.id);
+            displayTasks(items.filter((item) => !item.completed));
+        } else {
+            console.log("No tasks found.");
+        }
+
+        break;
+    }
+    case "clean-cache": {
+        const start = Task.registry.items.length;
+        Task.registry.items.forEach(function (item) {
+            if (item.completed) {
+                Task.registry.remove(item.id);
+            }
+        });
+        Task.registry.save();
+        console.log(`Removed ${start - Task.registry.items.length} completed items.`);
+        break;
     }
     }
 } catch (error) {
