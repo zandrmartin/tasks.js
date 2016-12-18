@@ -1,7 +1,18 @@
 # tasks.js
 
-task.js is a simple CLI todo list application that I wrote mostly as an excuse to learn JavaScript. In the process I've
+tasks.js is a simple CLI todo list application that I wrote mostly as an excuse to learn JavaScript. In the process I've
 learned to love the language, but not the ecosystem. tasks.js has no external dependencies.
+
+## Description
+
+tasks.js fits somewhere between [Steve Losh's `t`](https://github.com/sjl/t) and
+[Taskwarrior](https://taskwarrior.org/) on the complexity spectrum. Tasks in tasks.js can have due dates, can recur at
+fixed intervals, and can have any number of tags. However, tasks.js is not intended to be a calendar or scheduling
+system, and does not require you to organize your tasks in any particular fashion.
+
+tasks.js stores all task data in either `$XDG_DATA_HOME/tasks.json` (if `$XDG_DATA_HOME` is set) or in `~/.tasks.json`.
+The storage format is unremarkable; it is just a JSON array dumped to a file. You are free to futz about with it if you
+like. Completed tasks remain in the data file until they are deleted with `clean-cache`.
 
 ## Usage
 
@@ -10,7 +21,8 @@ learned to love the language, but not the ecosystem. tasks.js has no external de
 `<action>` is one of `add`, `clean-cache`, `complete`, `delete`, `list`, `postpone`, `rename`, `retag`, `status`
 `<options>` depend on `<action>`:
 
-- `add "name of task" [<-d|--due> <date|day-of-week>] [<-r|--recurs> [#] <day|week|month|year|day-of-week>] [<-t|--tags> tag1 [tag2 tag3 ...]]`
+- `add "name of task" [<-d|--due> <date|day-of-week>] [<-r|--recurs> [#] <day|week|month|year|day-of-week>] [<-t|--tags>
+  tag1 [tag2 tag3 ...]]`
 - `complete <id> [<id> <id> ...]`
 - `delete <id> [<id> <id> ...]`
 - `list [dated] ["search term"]`
@@ -36,7 +48,7 @@ I'd recommend setting up an alias in your shell. Something like `alias task='nod
 ## Explanation of actions
 
 - `add` adds a task
-- `clean-cache` deletes all completed tasks from the storage file
+- `clean-cache` deletes all completed tasks from the data file
 - `complete` completes a task, either by marking it completed, or rescheduling it for its next occurrence
 - `delete` deletes a task. There is no recovery.
 - `list` list tasks, optionally narrowed by some search criteria
@@ -46,3 +58,7 @@ I'd recommend setting up an alias in your shell. Something like `alias task='nod
   already has.
 - `status` a special command to list all tasks due today (or in the past) joined into a single string, for use in
   status bars e.g. [Lemonbar](https://github.com/LemonBoy/bar) etc.
+
+## License
+
+GPL-3.0
