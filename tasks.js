@@ -17,7 +17,7 @@ require("./polyfills.js");
 const Task = require("./task.js");
 const scheduling = require("./scheduling.js");
 const console = require("console");
-const ACTIONS = ["add", "complete", "delete", "list", "status", "clean-cache", "postpone", "rename"];
+const ACTIONS = ["add", "complete", "delete", "list", "status", "clean-cache", "postpone", "rename", "retag"];
 const USAGE = `Usage: node tasks.js <action> <options>
 
 <action> is one of ${ACTIONS.map((a) => `"${a}"`).sort().join(", ")}
@@ -33,6 +33,7 @@ Options:
   list [tagged|dated] ["search term"]
   postpone <date> <id> [<id> <id> ...]
   rename <id> <name>
+  retag <id> [tag1 tag2 tag3 ...]
   status`;
 
 Task.registry.load();
@@ -102,11 +103,19 @@ function parseArgs() {
         },
         rename: function () {
             if (args.length < 2) {
-                throw { name: "ArgumentError", message: "Postpone requires date and id(s)." };
+                throw { name: "ArgumentError", message: "Rename requires id and name." };
             }
 
             options.id = parseInt(args.shift(), 36);
             options.name = args.shift();
+        },
+        retag: function () {
+            if (args.length < 1) {
+                throw { name: "ArgumentError", message: "Retag requires id and (optional) tags." };
+            }
+
+            options.id = parseInt(args.shift(), 36);
+            options.tags = args;
         }
     };
     argParsers.delete = argParsers.complete;
@@ -266,10 +275,26 @@ try {
             break;
         }
 
-        const origName = task.name;
+        const old = task.name;
         task.name = options.name;
         Task.registry.save();
-        console.log(`Renamed task "${origName}" to "${task.name}".`);
+        console.log(`Renamed task "${old}" to "${task.name}".`);
+
+        break;
+    }
+
+    case "retag": {
+        let task = Task.registry.getById(options.id);
+
+        if (!task) {
+            console.log(`Unable to find task with id ${options.id}.`);
+            break;
+        }
+
+        const old = task.tags;
+        task.tags = options.tags;
+        Task.registry.save();
+        console.log(`Retagged task ${task.name}; removed [${old.sort().join(", ")}], added [${task.tags.sort().join(", ")}].`);
 
         break;
     }
