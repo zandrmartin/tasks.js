@@ -79,6 +79,8 @@ function nextScheduled(sched) {
         default:
             throw { name: "ScheduleError", message: `${sched} is not a valid schedule.` };
         }
+    } else if (DAYS.some((day) => sched.toLowerCase().includes(day))) {
+        return new Date(Math.min(...sched.split(",").map(parseDueDate)));
     } else {
         throw { name: "ScheduleError", message: `${sched} is not a valid schedule.` };
     }

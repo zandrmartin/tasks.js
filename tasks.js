@@ -25,7 +25,7 @@ const USAGE = `Usage: node tasks.js <action> <options>
 
 Options:
   add "name of task" [<-d|--due> <date|day-of-week>]
-                     [<-r|--recurs> <#> <day|week|month|year>]
+                     [<-r|--recurs> [#] <day|week|month|year|day-of-week>]
                      [<-t|--tags> tag1 [tag2 tag3 ...]]
   clean-cache
   complete <id> [<id> <id> ...]
@@ -60,7 +60,13 @@ function parseArgs() {
 
                 case "r": // fallthrough
                 case "recurs":
-                    options.recurs = args.shift() + " " + args.shift();
+                    options.recurs = args.shift();
+
+                    if (options.recurs.isNumeric()) {
+                        // meaning something like `-r 3 weeks` instead of `-r monday,thursday`
+                        options.recurs += " " + args.shift();
+                    }
+
                     break;
 
                 case "t": // fallthrough
@@ -229,12 +235,12 @@ try {
 
         case "named":
             _items = Task.registry.items.filter(function (item) {
-                let ret = item.name.toLowerCase().includes(search);
-                item.tags.forEach(function (tag) {
-                    ret = ret || tag.toLowerCase().includes(search);
-                });
-                return ret;
+                return (
+                    item.name.toLowerCase().includes(search) ||
+                    item.tags.some((tag) => tag.toLowerCase().includes(search))
+                );
             });
+
             break;
 
         case "all":
