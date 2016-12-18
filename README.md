@@ -8,8 +8,7 @@ learned to love the language, but not the ecosystem. tasks.js has no external de
 `node tasks.js <action> <options>`
 
 `<action>` is one of `add`, `clean-cache`, `complete`, `delete`, `list`, `postpone`, `rename`, `retag`, `status`
-
-`<options>` depend on action:
+`<options>` depend on `<action>`:
 
 - `add "name of task" [<-d|--due> <date|day-of-week>] [<-r|--recurs> [#] <day|week|month|year|day-of-week>] [<-t|--tags> tag1 [tag2 tag3 ...]]`
 - `complete <id> [<id> <id> ...]`
@@ -27,7 +26,7 @@ I'd recommend setting up an alias in your shell. Something like `alias task='nod
 - Change that task to be due Wednesday: `task postpone wednesday <id>`
 - Add a task due the 17th of every other month: `task add "do the monthly thing" -d 1-17-2017 -r 2 month`
 - Rename that task: `task rename <id> "do the bi-monthly thing"`
-- Add a task with some tags: `task add "take care of that stuff" -t stuff "take care"
+- Add a task with some tags: `task add "take care of that stuff" -t stuff "take care"`
 - Change those tags: `task retag <id> stuff things`
 - Add a task due on Mondays and Thursdays: `task add "biweekly stuttered thing" -d monday -r monday,thursday`
 - See all tasks that are not completed: `task list`
