@@ -30,7 +30,7 @@ Options:
   clean-cache
   complete <id> [<id> <id> ...]
   delete <id> [<id> <id> ...]
-  list [tagged|dated] ["search term"]
+  list [dated] ["search term"]
   postpone <date> <id> [<id> <id> ...]
   rename <id> <name>
   retag <id> [tag1 tag2 tag3 ...]
@@ -85,8 +85,8 @@ function parseArgs() {
 
             let arg = args.shift();
 
-            if (["dated", "tagged"].includes(arg.toLowerCase()) && args.length > 0) {
-                options.list.type = arg.toLowerCase();
+            if (arg.toLowerCase() === "dated" && args.length > 0) {
+                options.list.type = "dated";
                 options.list.search = args.shift();
             } else {
                 options.list.type = "named";
@@ -224,12 +224,14 @@ try {
             break;
         }
 
-        case "tagged":
-            items = Task.registry.items.filter((x) => x.tags.includes(search));
-            break;
-
         case "named":
-            items = Task.registry.items.filter((item) => item.name.toLowerCase().includes(search));
+            items = Task.registry.items.filter(function (item) {
+                let ret = item.name.toLowerCase().includes(search);
+                item.tags.forEach(function (tag) {
+                    ret = ret || tag.toLowerCase().includes(search);
+                });
+                return ret;
+            });
             break;
 
         case "all":
