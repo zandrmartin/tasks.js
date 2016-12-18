@@ -135,10 +135,10 @@ function parseArgs() {
 
 function displayTasks(items) {
     const maxLengths = {
-        id:   items.map((item) => item.id.toString(36).length).max(),
-        name: items.map((item) => item.name.length).max(),
-        due:  items.map((item) => (item.due) ? item.due.toDateString().length : 0).max(),
-        tags: items.map((item) => item.tags.join(", ").length).max(),
+        id:   Math.max(items.map((item) => item.id.toString(36).length).max(), 2),
+        name: Math.max(items.map((item) => item.name.length).max(), 4),
+        due:  Math.max(items.map((item) => (item.due) ? item.due.toDateString().length : 0).max(), 3),
+        tags: Math.max(items.map((item) => item.tags.join(", ").length).max(), 4)
     };
 
     const h = {
@@ -160,6 +160,9 @@ function displayTasks(items) {
         let tags = item.tags.sort().join(", ");
         console.log(`${id}  ${name}  ${due}  ${tags}`);
     });
+
+    console.log("".padRight(header.length, "-"));
+    console.log(`${items.length} total tasks`);
 }
 
 try {
@@ -214,18 +217,18 @@ try {
     }
 
     case "list": {
-        let items;
+        let _items;
         const search = (options.list.search) ? options.list.search.toLowerCase() : "";
 
         switch (options.list.type) {
         case "dated": {
             let find = new Date(search);
-            items = Task.registry.items.filter((item) => (item.due && item.due.isSameDayAs(find)));
+            _items = Task.registry.items.filter((item) => (item.due && item.due.isSameDayAs(find)));
             break;
         }
 
         case "named":
-            items = Task.registry.items.filter(function (item) {
+            _items = Task.registry.items.filter(function (item) {
                 let ret = item.name.toLowerCase().includes(search);
                 item.tags.forEach(function (tag) {
                     ret = ret || tag.toLowerCase().includes(search);
@@ -235,13 +238,15 @@ try {
             break;
 
         case "all":
-            items = Task.registry.items;
+            _items = Task.registry.items;
             break;
         }
 
+        _items.sort((a, b) => (a.due && b.due) ? b.due - a.due : (a.due) ? 1 : (b.due) ? -1 : 0);
+        const items = _items.filter((item) => !item.completed);
+
         if (items.length > 0) {
-            items.sort((a, b) => (a.due && b.due) ? b.due - a.due : (a.due) ? 1 : (b.due) ? -1 : 0);
-            displayTasks(items.filter((item) => !item.completed));
+            displayTasks(items);
         } else {
             console.log("No tasks found.");
         }
