@@ -192,7 +192,7 @@ try {
             task.tags = options.tags;
         }
 
-        console.log(`Added task ${task.name}.`);
+        console.log(`Added task ${task.name} (id ${task.id}).`);
         Task.registry.save();
         break;
     }
