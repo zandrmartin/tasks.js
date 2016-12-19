@@ -14,11 +14,15 @@ tasks.js stores all task data in either `$XDG_DATA_HOME/tasks.json` (if `$XDG_DA
 The storage format is unremarkable; it is just a JSON array dumped to a file. You are free to futz about with it if you
 like. Completed tasks remain in the data file until they are deleted with `clean-cache`.
 
+Each task is assigned a unique id. This id is just an integer, although it is displayed in base-36 to keep things short.
+("abc" is easier to type than 13368.) A given task will always have the same id throughout its life, however ids will be
+reused when tasks are deleted (either through `delete` or `clean-cache`).
+
 ## Usage
 
 `node tasks.js <action> <options>`
 
-`<action>` is one of `add`, `clean-cache`, `complete`, `delete`, `list`, `postpone`, `rename`, `retag`, `status`
+`<action>` is one of `add`, `clean-cache`, `complete`, `delete`, `list`, `postpone`, `rename`, `retag`, `status`  
 `<options>` depend on `<action>`:
 
 - `add "name of task" [<-d|--due> <date|day-of-week>] [<-r|--recurs> [#] <day|week|month|year|day-of-week>] [<-t|--tags>
@@ -61,4 +65,4 @@ I'd recommend setting up an alias in your shell. Something like `alias task='nod
 
 ## License
 
-GPL-3.0
+GPL v3
