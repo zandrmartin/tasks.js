@@ -29,7 +29,7 @@ reused when tasks are deleted (either through `delete` or `clean-cache`).
   tag1 [tag2 tag3 ...]]`
 - `complete <id> [<id> <id> ...]`
 - `delete <id> [<id> <id> ...]`
-- `list [dated] ["search term"]`
+- `list [dated] ["search term"] [-c|--completed]`
 - `postpone <date> <id> [<id> <id> ...]`
 - `rename <id> <name>`
 - `retag <id> [tag1 tag2 tag3 ...]`
@@ -46,7 +46,8 @@ I'd recommend setting up an alias in your shell. Something like `alias task='nod
 - Change those tags: `task retag <id> stuff things`
 - Add a task due on Mondays and Thursdays: `task add "biweekly stuttered thing" -d monday -r monday,thursday`
 - See all tasks that are not completed: `task list`
-- See all the tasks that contain the word `foobar` in the name or the tags: `task list foobar`
+- See all tasks that contain the word `foo` in the name or the tags: `task list foo`
+- Show the complete tasks that contain `foo`: `task list foo -c`
 - See all tasks due on a particular day: `task list dated 8-12-2042`
 
 ## Explanation of actions

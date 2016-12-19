@@ -30,7 +30,7 @@ Options:
   clean-cache
   complete <id> [<id> <id> ...]
   delete <id> [<id> <id> ...]
-  list [dated] ["search term"]
+  list [dated] ["search term"] [-c|--completed]
   postpone <date> <id> [<id> <id> ...]
   rename <id> <name>
   retag <id> [tag1 tag2 tag3 ...]
@@ -83,7 +83,16 @@ function parseArgs() {
             options.ids = args.map((id) => parseInt(id, 36));
         },
         list: function () {
-            options.list = {};
+            options.list = {
+                completed: false
+            };
+
+            const i = args.findIndex((arg) => ["-c", "--completed"].includes(arg.toLowerCase()));
+            if (i > -1) {
+                args.splice(i, 1);
+                options.list.completed = true;
+            }
+
             if (args.length === 0) {
                 options.list.type = "all";
                 return;
@@ -249,7 +258,7 @@ try {
         }
 
         _items.sort((a, b) => (a.due && b.due) ? b.due - a.due : (a.due) ? 1 : (b.due) ? -1 : 0);
-        const items = _items.filter((item) => !item.completed);
+        const items = _items.filter((item) => item.completed === options.list.completed);
 
         if (items.length > 0) {
             displayTasks(items);
