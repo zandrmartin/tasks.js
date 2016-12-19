@@ -47,7 +47,7 @@ I'd recommend setting up an alias in your shell. Something like `alias task='nod
 - Add a task due on Mondays and Thursdays: `task add "biweekly stuttered thing" -d monday -r monday,thursday`
 - See all tasks that are not completed: `task list`
 - See all tasks that contain the word `foo` in the name or the tags: `task list foo`
-- Show the complete tasks that contain `foo`: `task list foo -c`
+- Show the completed tasks that contain `foo`: `task list foo -c`
 - See all tasks due on a particular day: `task list dated 8-12-2042`
 
 ## Explanation of actions
