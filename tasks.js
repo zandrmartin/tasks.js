@@ -150,10 +150,10 @@ function parseArgs() {
 
 function displayTasks(items) {
     const maxLengths = {
-        id:   Math.max(items.map((item) => item.id.toString(36).length).max(), 2),
-        name: Math.max(items.map((item) => item.name.length).max(), 4),
-        due:  Math.max(items.map((item) => (item.due) ? item.due.toDateString().length : 0).max(), 3),
-        tags: Math.max(items.map((item) => item.tags.join(", ").length).max(), 4)
+        id:   Math.max(2, items.map((item) => item.id.toString(36).length).max()),
+        name: Math.max(4, items.map((item) => item.name.length).max()),
+        due:  Math.max(3, items.map((item) => (item.due) ? item.due.toDateString().length : 0).max()),
+        tags: Math.max(4, items.map((item) => item.tags.join(", ").length).max())
     };
 
     const h = {
@@ -163,17 +163,38 @@ function displayTasks(items) {
         tags: "Tags".padRight(maxLengths.tags)
     };
 
-    const header = `${h.id}  ${h.name}  ${h.due}  ${h.tags}`;
+    const showDueCol = items.some((item) => !!item.due);
+    const showTagCol = items.some((item) => item.tags && item.tags.length > 0);
+
+    let header = `${h.id}  ${h.name}`;
+
+    if (showDueCol) {
+        header += `  ${h.due}`;
+    }
+
+    if (showTagCol) {
+        header += `  ${h.tags}`;
+    }
 
     console.log(header);
     console.log("".padRight(header.length, "-"));
 
     items.forEach(function (item) {
-        let id = item.id.toString(36).padLeft(Math.max(h.id.length, maxLengths.id));
+        let id   = item.id.toString(36).padLeft(Math.max(h.id.length, maxLengths.id));
         let name = item.name.padRight(maxLengths.name);
-        let due = (item.due) ? item.due.toDateString().padRight(maxLengths.due) : "".padRight(maxLengths.due);
+        let due  = (item.due) ? item.due.toDateString().padRight(maxLengths.due) : "".padRight(maxLengths.due);
         let tags = item.tags.sort().join(", ");
-        console.log(`${id}  ${name}  ${due}  ${tags}`);
+        let line = `${id}  ${name}`;
+
+        if (showDueCol) {
+            line += `  ${due}`;
+        }
+
+        if (showTagCol) {
+            line += `  ${tags}`;
+        }
+
+        console.log(line);
     });
 
     console.log("".padRight(header.length, "-"));
