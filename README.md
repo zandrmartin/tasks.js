@@ -29,7 +29,7 @@ reused when tasks are deleted (either through `delete` or `clean-cache`).
   tag1 [tag2 tag3 ...]]`
 - `complete <id> [<id> <id> ...]`
 - `delete <id> [<id> <id> ...]`
-- `list [dated] ["search term"] [-c|--completed]`
+- `list [dated] ["search term"] [-c|--completed] [-n|--no-recurring]`
 - `postpone <date> <id> [<id> <id> ...]`
 - `rename <id> <name>`
 - `retag <id> [tag1 tag2 tag3 ...]`

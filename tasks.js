@@ -256,7 +256,7 @@ try {
             } else {
                 Task.registry.remove(task.id);
             }
-            console.log(`Task ${task.id} (${task.name}) ${options.action}d.`);
+            console.log(`Task ${task.id.toString(36)} (${task.name}) ${options.action}d.`);
         });
         Task.registry.save();
         break;
