@@ -30,7 +30,7 @@ Options:
   clean-cache
   complete <id> [<id> <id> ...]
   delete <id> [<id> <id> ...]
-  list [dated] ["search term"] [-c|--completed]
+  list [dated] ["search term"] [-c|--completed] [-n|--no-recurring]
   postpone <date> <id> [<id> <id> ...]
   rename <id> <name>
   retag <id> [tag1 tag2 tag3 ...]
@@ -84,13 +84,20 @@ function parseArgs() {
         },
         list: function () {
             options.list = {
-                completed: false
+                completed: false,
+                hideRecurring: false
             };
 
-            const i = args.findIndex((arg) => ["-c", "--completed"].includes(arg.toLowerCase()));
+            let i = args.findIndex((arg) => ["-c", "--completed"].includes(arg.toLowerCase()));
             if (i > -1) {
                 args.splice(i, 1);
                 options.list.completed = true;
+            }
+
+            i = args.findIndex((arg) => ["-n", "--no-recurring"].includes(arg.toLowerCase()));
+            if (i > -1) {
+                args.splice(i, 1);
+                options.list.hideRecurring = true;
             }
 
             if (args.length === 0) {
@@ -279,7 +286,11 @@ try {
         }
 
         _items.sort((a, b) => (a.due && b.due) ? b.due - a.due : (a.due) ? 1 : (b.due) ? -1 : 0);
-        const items = _items.filter((item) => item.completed === options.list.completed);
+        let items = _items.filter((item) => item.completed === options.list.completed);
+
+        if (options.list.hideRecurring) {
+            items = items.filter((item) => !item.recurs);
+        }
 
         if (items.length > 0) {
             displayTasks(items);
