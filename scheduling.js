@@ -52,7 +52,7 @@ function parseDueDate(_dt) {
 function nextScheduled(sched) {
     const [_num, time] = sched.split(" ");
     const number = parseInt(_num, 10);
-    let d = new Date();
+    const d = new Date();
 
     if (!isNaN(number)) {
         switch (time) {

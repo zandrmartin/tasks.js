@@ -39,13 +39,12 @@ Options:
 Task.registry.load();
 
 function parseArgs() {
-    let args = process.argv.slice(2);
+    const args = process.argv.slice(2);
     if (args.length < 1) {
         throw { name: "ArgumentError", message: USAGE };
     }
 
-    let options = {};
-
+    const options = {};
     const argParsers = {
         add: function () {
             options.name = args.shift();
@@ -223,7 +222,7 @@ function displayTasks(items) {
 }
 
 try {
-    let options = parseArgs();
+    const options = parseArgs();
     switch (options.action) {
     case "add": {
         const attrs = { name: options.name };
@@ -279,7 +278,7 @@ try {
 
         switch (options.list.type) {
         case "dated": {
-            let find = new Date(search);
+            const find = scheduling.parseDueDate(search);
             _items = Task.registry.items.filter((item) => (item.due && item.due.isSameDayAs(find)));
             break;
         }

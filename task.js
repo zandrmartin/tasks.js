@@ -66,7 +66,7 @@ const Task = {
         }
     },
     new: function (init = {}) {
-        let t = Object.create(Task.objProto);
+        const t = Object.create(Task.objProto);
         t.id = 0;
 
         // set id to first unused id
@@ -95,7 +95,7 @@ const Task = {
             }
         },
         remove: function (id) {
-            let i = this.items.findIndex((item) => item.id === id);
+            const i = this.items.findIndex((item) => item.id === id);
             return this.items.splice(i, 1);
         },
         getById: function (id) {
