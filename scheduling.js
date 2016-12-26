@@ -49,31 +49,33 @@ function parseDueDate(_dt) {
     return d;
 }
 
-function nextScheduled(sched) {
+function nextScheduled(sched, _start) {
     const [_num, time] = sched.split(" ");
     const number = parseInt(_num, 10);
     const d = new Date();
 
     if (!isNaN(number)) {
+        const start = _start || new Date();
+
         switch (time) {
         case "day": // fallthrough
         case "days":
-            d.setDate(d.getDate() + number);
+            d.setDate(start.getDate() + number);
             break;
 
         case "week": // fallthrough
         case "weeks":
-            d.setDate(d.getDate() + (number * 7));
+            d.setDate(start.getDate() + (number * 7));
             break;
 
         case "month": // fallthrough
         case "months":
-            d.setUTCMonth(d.getUTCMonth() + number);
+            d.setMonth(start.getMonth() + number);
             break;
 
         case "year": // fallthrough
         case "years":
-            d.setYear(d.getYear() + number);
+            d.setYear(start.getYear() + number);
             break;
 
         default:

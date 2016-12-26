@@ -36,7 +36,7 @@ const Task = {
         completed: false,
         complete: function () {
             if (this.recurs && this.schedule) {
-                this.due = scheduling.nextScheduled(this.schedule);
+                this.due = scheduling.nextScheduled(this.schedule, this.due);
             } else {
                 this.completed = true;
             }
