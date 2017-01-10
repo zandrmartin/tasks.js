@@ -47,6 +47,10 @@ function parseArgs() {
     const options = {};
     const argParsers = {
         add: function () {
+            if (args.length < 1) {
+                throw { name: "ArgumentError", message: "Add requires a task." };
+            }
+
             options.name = args.shift();
             let arg;
 
