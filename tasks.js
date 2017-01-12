@@ -1,4 +1,4 @@
-// Copyright © 2016 Zandr Martin
+// Copyright © 2016-2017 Zandr Martin
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,8 +38,7 @@ Options:
 
 Task.registry.load();
 
-function parseArgs() {
-    const args = process.argv.slice(2);
+function parseArgs(args) {
     if (args.length < 1) {
         throw { name: "ArgumentError", message: USAGE };
     }
@@ -226,7 +225,7 @@ function displayTasks(items) {
 }
 
 try {
-    const options = parseArgs();
+    const options = parseArgs(process.argv.slice(2));
     switch (options.action) {
     case "add": {
         const attrs = { name: options.name };
