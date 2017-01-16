@@ -100,13 +100,75 @@ const Task = {
         },
         getById: function (id) {
             const tasks = this.items.filter((item) => item.id === id);
+            return (tasks.length > 0) ? tasks[0] : null;
+        }
+    },
+    displayList: function (items) {
+        const maxLengths = {
+            id:   Math.max(2, items.map((item) => item.id.toString(36).length).max()),
+            name: Math.max(4, items.map((item) => item.name.length).max()),
+            due:  Math.max(3, items.map((item) => (item.due) ? item.due.toDateString().length : 0).max()),
+            tags: Math.max(4, items.map((item) => item.tags.join(", ").length).max()),
+            sched: Math.max(8, items.map((item) => (item.schedule) ? item.schedule.length : 0).max())
+        };
 
-            if (tasks.length > 0) {
-                return tasks[0];
+        const h = {
+            id:    "id".padLeft(maxLengths.id),
+            name:  "Task".padRight(maxLengths.name),
+            due:   "Due".padRight(maxLengths.due),
+            tags:  "Tags".padRight(maxLengths.tags),
+            sched: "Schedule".padRight(maxLengths.sched)
+        };
+
+        const show = {
+            due:   items.some((item) => !!item.due),
+            tags:  items.some((item) => item.tags && item.tags.length > 0),
+            sched: items.some((item) => !!item.schedule)
+        };
+
+        let header = `${h.id}  ${h.name}`;
+
+        if (show.due) {
+            header += `  ${h.due}`;
+        }
+
+        if (show.sched) {
+            header += `  ${h.sched}`;
+        }
+
+        if (show.tags) {
+            header += `  ${h.tags}`;
+        }
+
+        const output = [header];
+        output.push("".padRight(header.length, "-"));
+
+        items.forEach(function (item) {
+            let id    = item.id.toString(36).padLeft(Math.max(h.id.length, maxLengths.id));
+            let name  = item.name.padRight(maxLengths.name);
+            let due   = ((item.due) ? item.due.toDateString() : "").padRight(maxLengths.due);
+            let tags  = item.tags.sort().join(", ");
+            let sched = ((item.schedule) ? item.schedule : "").padRight(maxLengths.sched);
+            let line  = `${id}  ${name}`;
+
+            if (show.due) {
+                line += `  ${due}`;
             }
 
-            return null;
-        }
+            if (show.sched) {
+                line += `  ${sched}`;
+            }
+
+            if (show.tags) {
+                line += `  ${tags}`;
+            }
+
+            output.push(line);
+        });
+
+        output.push("".padRight(header.length, "-"));
+        output.push(`${items.length} total tasks`);
+        return output.join("\n");
     }
 };
 

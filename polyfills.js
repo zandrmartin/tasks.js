@@ -12,7 +12,9 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 "use strict";
+
 if (!String.prototype.isNumeric) {
     String.prototype.isNumeric = function () {
         return !isNaN(parseInt(this, 10));

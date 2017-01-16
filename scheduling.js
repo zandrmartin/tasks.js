@@ -15,8 +15,8 @@
 "use strict";
 const DAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
-function parseDueDate(_dt) {
-    const now = new Date();
+function parseDueDate(_dt, _start) {
+    const start = _start || new Date();
     const dt = _dt.toLowerCase();
     let d = new Date(_dt);
 
@@ -27,21 +27,21 @@ function parseDueDate(_dt) {
     d = new Date();
 
     if (dt === "today") {
-        d.setDate(now.getDate());
+        d.setUTCDate(start.getDate());
     } else if (dt === "tomorrow") {
-        d.setDate(now.getDate() + 1);
+        d.setUTCDate(start.getDate() + 1);
     } else if (DAYS.includes(dt)) {
         const day = DAYS.findIndex((item) => item === dt);
-        if (day > now.getDay()) {
-            d.setDate(now.getDate() + (day - now.getDay()));
+        if (day > start.getDay()) {
+            d.setUTCDate(start.getDate() + (day - start.getDay()));
         } else {
-            d.setDate(now.getDate() + (7 - now.getDay()) + day);
+            d.setUTCDate(start.getDate() + (7 - start.getDay()) + day);
         }
     } else if (dt.isNumeric()) {
-        if (dt > now.getDate()) {
-            d.setUTCMonth(now.getUTCMonth() + 1);
+        if (parseInt(dt) < start.getUTCDate()) {
+            d.setUTCMonth(start.getUTCMonth() + 1);
         }
-        d.setDate(dt);
+        d.setUTCDate(dt);
     } else {
         throw { name: "DueDateError", message: `${_dt} is not a valid date.` };
     }
@@ -53,36 +53,35 @@ function nextScheduled(sched, _start) {
     const [_num, time] = sched.split(" ");
     const number = parseInt(_num, 10);
     const d = new Date();
+    const start = _start || new Date();
 
     if (!isNaN(number)) {
-        const start = _start || new Date();
-
         switch (time) {
         case "day": // fallthrough
         case "days":
-            d.setDate(start.getDate() + number);
+            d.setUTCDate(start.getDate() + number);
             break;
 
         case "week": // fallthrough
         case "weeks":
-            d.setDate(start.getDate() + (number * 7));
+            d.setUTCDate(start.getDate() + (number * 7));
             break;
 
         case "month": // fallthrough
         case "months":
-            d.setMonth(start.getMonth() + number);
+            d.setUTCMonth(start.getMonth() + number);
             break;
 
         case "year": // fallthrough
         case "years":
-            d.setYear(start.getYear() + number);
+            d.setUTCFullYear(start.getFullYear() + number);
             break;
 
         default:
             throw { name: "ScheduleError", message: `${sched} is not a valid schedule.` };
         }
     } else if (DAYS.some((day) => sched.toLowerCase().includes(day))) {
-        return new Date(Math.min(...sched.split(",").map(parseDueDate)));
+        return new Date(Math.min(...sched.split(",").map((d) => parseDueDate(d, start))));
     } else {
         throw { name: "ScheduleError", message: `${sched} is not a valid schedule.` };
     }

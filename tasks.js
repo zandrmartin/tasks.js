@@ -36,9 +36,7 @@ Options:
   retag <id> [tag1 tag2 tag3 ...]
   status`;
 
-Task.registry.load();
-
-function parseArgs(args) {
+const parseArgs = function (args) {
     if (args.length < 1) {
         throw { name: "ArgumentError", message: USAGE };
     }
@@ -155,77 +153,10 @@ function parseArgs(args) {
     }
 
     return options;
-}
+};
 
-function displayTasks(items) {
-    const maxLengths = {
-        id:   Math.max(2, items.map((item) => item.id.toString(36).length).max()),
-        name: Math.max(4, items.map((item) => item.name.length).max()),
-        due:  Math.max(3, items.map((item) => (item.due) ? item.due.toDateString().length : 0).max()),
-        tags: Math.max(4, items.map((item) => item.tags.join(", ").length).max()),
-        sched: Math.max(8, items.map((item) => (item.schedule) ? item.schedule.length : 0).max())
-    };
-
-    const h = {
-        id:    "id".padLeft(maxLengths.id),
-        name:  "Task".padRight(maxLengths.name),
-        due:   "Due".padRight(maxLengths.due),
-        tags:  "Tags".padRight(maxLengths.tags),
-        sched: "Schedule".padRight(maxLengths.sched)
-    };
-
-    const show = {
-        due:   items.some((item) => !!item.due),
-        tags:  items.some((item) => item.tags && item.tags.length > 0),
-        sched: items.some((item) => !!item.schedule)
-    };
-
-    let header = `${h.id}  ${h.name}`;
-
-    if (show.due) {
-        header += `  ${h.due}`;
-    }
-
-    if (show.sched) {
-        header += `  ${h.sched}`;
-    }
-
-    if (show.tags) {
-        header += `  ${h.tags}`;
-    }
-
-    console.log(header);
-    console.log("".padRight(header.length, "-"));
-
-    items.forEach(function (item) {
-        let id    = item.id.toString(36).padLeft(Math.max(h.id.length, maxLengths.id));
-        let name  = item.name.padRight(maxLengths.name);
-        let due   = ((item.due) ? item.due.toDateString() : "").padRight(maxLengths.due);
-        let tags  = item.tags.sort().join(", ");
-        let sched = ((item.schedule) ? item.schedule : "").padRight(maxLengths.sched);
-        let line  = `${id}  ${name}`;
-
-        if (show.due) {
-            line += `  ${due}`;
-        }
-
-        if (show.sched) {
-            line += `  ${sched}`;
-        }
-
-        if (show.tags) {
-            line += `  ${tags}`;
-        }
-
-        console.log(line);
-    });
-
-    console.log("".padRight(header.length, "-"));
-    console.log(`${items.length} total tasks`);
-}
-
-try {
-    const options = parseArgs(process.argv.slice(2));
+const main = function (options) {
+    Task.registry.load();
     switch (options.action) {
     case "add": {
         const attrs = { name: options.name };
@@ -308,12 +239,8 @@ try {
             items = items.filter((item) => !item.recurs);
         }
 
-        if (items.length > 0) {
-            displayTasks(items);
-        } else {
-            console.log("No tasks found.");
-        }
-
+        const output = (items.length > 0) ? Task.displayList(items) : "No tasks found.";
+        console.log(output);
         break;
     }
 
@@ -369,6 +296,18 @@ try {
         break;
     }
     }
-} catch (error) {
-    console.log(error.message);
+};
+
+module.exports = {
+    parseArgs,
+    main
+};
+
+if (require.main === module) {
+    try {
+        const options = parseArgs(process.argv.slice(2));
+        main(options);
+    } catch (error) {
+        console.log(error.message);
+    }
 }
