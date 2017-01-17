@@ -25,7 +25,7 @@ const USAGE = `Usage: node tasks.js <action> <options>
 
 Options:
   add "name of task" [<-d|--due> <date|day-of-week>]
-                     [<-r|--recurs> [#] <day|week|month|year|day-of-week>]
+                     [<-r|--recurs> [#] <day|week|month|year|day-of-week>] (this option requires the due option)
                      [<-t|--tags> tag1 [tag2 tag3 ...]]
   clean-cache
   complete <id> [<id> <id> ...]
@@ -55,14 +55,28 @@ const parseArgs = function (args) {
                 switch (arg.toLowerCase().replace(/^-*/, "")) {
                 case "d": // fallthrough
                 case "due":
+                    if (args.length < 1) {
+                        throw { name: "ArgumentError", message: "No due date provided." };
+                    }
+
                     options.due = args.shift();
                     break;
 
                 case "r": // fallthrough
                 case "recurs":
+                    if (args.length < 1) {
+                        throw { name: "ArgumentError", message: "No schedule provided." };
+                    }
+
                     options.recurs = args.shift();
 
                     if (options.recurs.isNumeric()) {
+                        if (args.length < 1) {
+                            throw {
+                                name: "ArgumentError",
+                                message: "Invalid scheduled provided: need time parameter (day/week/month/etc)."
+                            };
+                        }
                         // meaning something like `-r 3 weeks` instead of `-r monday,thursday`
                         options.recurs += " " + args.shift();
                     }
@@ -80,6 +94,10 @@ const parseArgs = function (args) {
             }
         },
         complete: function () {
+            if (args.length < 1) {
+                const name = options.action.substr(0, 1).toUpperCase() + options.action.substr(1);
+                throw { name: "ArgumentError", message: `${name} requires date and id(s).` };
+            }
             options.ids = args.map((id) => parseInt(id, 36));
         },
         list: function () {
@@ -150,6 +168,10 @@ const parseArgs = function (args) {
 
     if (options.action in argParsers) {
         argParsers[options.action].call();
+    }
+
+    if (options.action === "add" && options.recurs && !options.due) {
+        throw { name: "ArgumentError", message: "Item recurrence requires due date." };
     }
 
     return options;
