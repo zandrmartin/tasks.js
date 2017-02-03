@@ -52,29 +52,29 @@ function parseDueDate(_dt, _start) {
 function nextScheduled(sched, _start) {
     const [_num, time] = sched.split(" ");
     const number = parseInt(_num, 10);
-    const d = new Date();
+    const d = _start || new Date();
     const start = _start || new Date();
 
     if (!isNaN(number)) {
         switch (time) {
         case "day": // fallthrough
         case "days":
-            d.setUTCDate(start.getDate() + number);
+            d.setUTCDate(start.getUTCDate() + number);
             break;
 
         case "week": // fallthrough
         case "weeks":
-            d.setUTCDate(start.getDate() + (number * 7));
+            d.setUTCDate(start.getUTCDate() + (number * 7));
             break;
 
         case "month": // fallthrough
         case "months":
-            d.setUTCMonth(start.getMonth() + number);
+            d.setUTCMonth(start.getUTCMonth() + number);
             break;
 
         case "year": // fallthrough
         case "years":
-            d.setUTCFullYear(start.getFullYear() + number);
+            d.setUTCFullYear(start.getUTCFullYear() + number);
             break;
 
         default:

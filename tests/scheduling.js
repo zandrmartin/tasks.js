@@ -95,6 +95,7 @@ const testCases = {
         const startDate = new Date();
         startDate.setUTCDate(20);
         const expected = new Date();
+        expected.setUTCDate(20);
         expected.setUTCMonth(8);
         assert.deepEqual(expected, scheduling.nextScheduled(schedule, startDate));
     },
