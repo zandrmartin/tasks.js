@@ -266,15 +266,13 @@ const main = function (options) {
         break;
     }
 
-    case "clean-cache":
-        Task.registry.items.forEach(function (item) {
-            if (item.completed) {
-                Task.registry.remove(item.id);
-                console.log(`Removing completed item ${item.name}.`);
-            }
-        });
+    case "clean-cache": {
+        const items = Task.registry.items;
+        Task.registry.items = items.filter((item) => !item.completed);
         Task.registry.save();
+        console.log(`${items.length - Task.registry.items.length} items removed.`);
         break;
+    }
 
     case "postpone":
         Task.registry.items.forEach(function (item) {
