@@ -3,6 +3,13 @@
 tasks.js is a simple CLI todo list application that I wrote mostly as an excuse to learn JavaScript. In the process I've
 learned to love the language, but not the ecosystem. tasks.js has no external dependencies.
 
+### THIS PROJECT IS ABANDONED
+
+I've found that [todo.txt-cli](https://github.com/ginatrapani/todo.txt-cli) and the
+[ice_recur](https://github.com/rlpowell/todo-text-stuff/blob/master/ice_recur) add-on do everything tasks.js does and
+much more. I will no longer be updating this project and I encourage you not to use it. It was a fun way to learn
+JavaScript though.
+
 ## Description
 
 tasks.js fits somewhere between [Steve Losh's `t`](https://github.com/sjl/t) and
@@ -22,7 +29,7 @@ reused when tasks are deleted (either through `delete` or `clean-cache`).
 
 `node tasks.js <action> <options>`
 
-`<action>` is one of `add`, `clean-cache`, `complete`, `delete`, `list`, `postpone`, `rename`, `retag`, `status`  
+`<action>` is one of `add`, `clean-cache`, `complete`, `delete`, `list`, `postpone`, `rename`, `retag`, `status`
 `<options>` depend on `<action>`:
 
 - `add "name of task" [<-d|--due> <date|day-of-week>] [<-r|--recurs> [#] <day|week|month|year|day-of-week>] [<-t|--tags>
