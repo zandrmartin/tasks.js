@@ -27,21 +27,21 @@ function parseDueDate(_dt, _start) {
     d = new Date();
 
     if (dt === "today") {
-        d.setUTCDate(start.getDate());
+        d.setDate(start.getDate());
     } else if (dt === "tomorrow") {
-        d.setUTCDate(start.getDate() + 1);
+        d.setDate(start.getDate() + 1);
     } else if (DAYS.includes(dt)) {
         const day = DAYS.findIndex((item) => item === dt);
         if (day > start.getDay()) {
-            d.setUTCDate(start.getDate() + (day - start.getDay()));
+            d.setDate(start.getDate() + (day - start.getDay()));
         } else {
-            d.setUTCDate(start.getDate() + (7 - start.getDay()) + day);
+            d.setDate(start.getDate() + (7 - start.getDay()) + day);
         }
     } else if (dt.isNumeric()) {
-        if (parseInt(dt) < start.getUTCDate()) {
-            d.setUTCMonth(start.getUTCMonth() + 1);
+        if (parseInt(dt) < start.getDate()) {
+            d.setMonth(start.getMonth() + 1);
         }
-        d.setUTCDate(dt);
+        d.setDate(dt);
     } else {
         throw { name: "DueDateError", message: `${_dt} is not a valid date.` };
     }
@@ -59,22 +59,22 @@ function nextScheduled(sched, _start) {
         switch (time) {
         case "day": // fallthrough
         case "days":
-            d.setUTCDate(start.getUTCDate() + number);
+            d.setDate(start.getDate() + number);
             break;
 
         case "week": // fallthrough
         case "weeks":
-            d.setUTCDate(start.getUTCDate() + (number * 7));
+            d.setDate(start.getDate() + (number * 7));
             break;
 
         case "month": // fallthrough
         case "months":
-            d.setUTCMonth(start.getUTCMonth() + number);
+            d.setMonth(start.getMonth() + number);
             break;
 
         case "year": // fallthrough
         case "years":
-            d.setUTCFullYear(start.getUTCFullYear() + number);
+            d.setFullYear(start.getFullYear() + number);
             break;
 
         default:

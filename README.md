@@ -1,3 +1,6 @@
+## Deprecation notice: tasks.js has been deprecated; all future development will happen in
+[pytasks](https://github.com/zandrmartin/pytasks).
+
 # tasks.js
 
 tasks.js is a simple CLI todo list application that I wrote mostly as an excuse to learn JavaScript. In the process I've
@@ -22,7 +25,7 @@ reused when tasks are deleted (either through `delete` or `clean-cache`).
 
 `node tasks.js <action> <options>`
 
-`<action>` is one of `add`, `clean-cache`, `complete`, `delete`, `list`, `postpone`, `rename`, `retag`, `status`  
+`<action>` is one of `add`, `clean-cache`, `complete`, `delete`, `list`, `postpone`, `rename`, `retag`, `status`
 `<options>` depend on `<action>`:
 
 - `add "name of task" [<-d|--due> <date|day-of-week>] [<-r|--recurs> [#] <day|week|month|year|day-of-week>] [<-t|--tags>
