@@ -1,5 +1,4 @@
-## Deprecation notice: tasks.js has been deprecated; all future development will happen in
-[pytasks](https://github.com/zandrmartin/pytasks).
+## Deprecation notice: tasks.js has been deprecated; all future development will happen in [pytasks](https://github.com/zandrmartin/pytasks).
 
 # tasks.js
 
